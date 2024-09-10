@@ -11,8 +11,35 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAppContext } from "@/context/AppContext";
 
 function StartPlayingDialog({ isDialogOpen, setIsDialogOpen }) {
+  const { socket, setRoomId } = useAppContext();
+
+  function handleCreateRoom(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+
+    const playerName = formData.get("playerName");
+    if(!playerName){
+      console.log("Name is Required");
+      return;
+    }
+    
+    socket.emit("create-room",playerName);
+  }
+
+  function handleJoinRoom(e) {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    const roomId = formData.get("roomId");
+    const playerName = formData.get("playerName");
+
+    setRoomId(roomId);
+    socket.emit("join-room", roomId, playerName);
+  }
+
   return (
     <>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -32,19 +59,24 @@ function StartPlayingDialog({ isDialogOpen, setIsDialogOpen }) {
             <TabsContent value="join">
               <form
                 className="h-[200px] flex flex-col justify-between"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  startGame("Player 2", "Player 1");
-                }}
+                onSubmit={handleJoinRoom}
               >
                 <div className=" space-y-4">
                   <div>
-                    <Label htmlFor="roomCode">Room Code</Label>
-                    <Input id="roomCode" placeholder="Enter room code" />
+                    <Label htmlFor="roomId">Room Id</Label>
+                    <Input
+                      name="roomId"
+                      id="roomId"
+                      placeholder="Enter room code"
+                    />
                   </div>
                   <div>
                     <Label htmlFor="playerName">Your Name</Label>
-                    <Input id="playerName" placeholder="Enter your name" />
+                    <Input
+                      name="playerName"
+                      id="playerName"
+                      placeholder="Enter your name"
+                    />
                   </div>
                 </div>
                 <Button type="submit">Join Room</Button>
@@ -53,14 +85,15 @@ function StartPlayingDialog({ isDialogOpen, setIsDialogOpen }) {
             <TabsContent value="create">
               <form
                 className="h-[200px] space-y-4 flex flex-col justify-between"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  startGame("Player 1", "Player 2");
-                }}
+                onSubmit={handleCreateRoom}
               >
                 <div>
                   <Label htmlFor="playerName">Your Name</Label>
-                  <Input id="playerName" placeholder="Enter your name" />
+                  <Input
+                    name="playerName"
+                    id="playerName"
+                    placeholder="Enter your name"
+                  />
                 </div>
                 <Button type="submit">Create Room</Button>
               </form>

@@ -4,11 +4,11 @@ import { Button } from "./ui/button";
 import { useAppContext } from "@/context/AppContext";
 
 function Square({ index, value }) {
-  const { socket } = useAppContext();
+  const { socket, roomId } = useAppContext();
 
   function onSquareClick(index) {
     console.log(index);
-    socket.emit("move", index);
+    socket.emit("move", index, roomId);
   }
   return value ? (
     <Button
@@ -32,9 +32,9 @@ function Square({ index, value }) {
 
 function Board({ boardState }) {
   let squares;
-  if (boardState) {
-    squares = Object.values(boardState);
-  }
+
+  squares = Object.values(boardState);
+  
   return (
     <div className="grid grid-cols-3 gap-1">
       {squares?.map((square, i) => (
@@ -62,27 +62,18 @@ function Board({ boardState }) {
 // }
 
 function Game() {
-  const { socket, board } = useAppContext();
+  const { socket, board, roomId } = useAppContext();
   const [player, setPlayer] = useState();
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <div className="flex flex-col items-center">
-      <Button 
-        onClick={(e) => {
-            socket.emit('join-room','12345');
-        }}
-
-        className="mb-6"
-      >
-        Join
-      </Button>
         <h1 className="text-4xl font-bold mb-8">Room</h1>
         <Board boardState={board} />
       </div>
       <Button 
         onClick={(e) => {
-          socket.emit("clearBoard");
+          socket.emit("clearBoard", roomId);
         }}
 
         className="mt-6"
