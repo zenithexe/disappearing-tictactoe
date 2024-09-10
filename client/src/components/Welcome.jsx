@@ -25,13 +25,12 @@ function StartPlayingDialog({ isDialogOpen, setIsDialogOpen }) {
       console.log("Name is Required");
       return;
     }
-    
+
     socket.emit("create-room",playerName);
   }
 
   function handleJoinRoom(e) {
     e.preventDefault();
-
     const formData = new FormData(e.target);
     const roomId = formData.get("roomId");
     const playerName = formData.get("playerName");

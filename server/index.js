@@ -64,7 +64,6 @@ io.on("connection", (socket) => {
 
     socket.join(roomId);
     console.log(`${name}: ${socket.id} created room ${roomId}`);
-
     io.to(roomId).emit("room-created", roomId);
   });
 
@@ -75,6 +74,7 @@ io.on("connection", (socket) => {
         activeGames[roomId].pO_name = name;
         socket.join(roomId);
         console.log(`${name}: ${socket.id} joined room ${roomId}`);
+        io.to(roomId).emit("player-update", activeGames[roomId].pX_name, activeGames[roomId].pO_name, activeGames[roomId].current);
       }
     }
   });
@@ -87,16 +87,14 @@ io.on("connection", (socket) => {
       game.current = game.current == "pO" ? "pX" : "pO";
       activeGames[roomId] = game;
       io.to(roomId).emit("board-update", activeGames[roomId].board);
+      io.to(roomId).emit('update-turn', activeGames[roomId].current)
     }
-    
-    
-    console.log(activeGames);
+  
   });
 
   socket.on("clearBoard", (roomId) => {
     gameObj = {
       ...activeGames[roomId],
-      current: "pX",
       board: {
         1: null,
         2: null,

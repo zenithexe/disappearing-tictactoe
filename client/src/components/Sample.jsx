@@ -22,24 +22,59 @@ function Board({ squares }) {
   )
 }
 
-function TimerDisplay({ player='PlayerName', symbol='X', isCurrentPlayer='true' }) {
+function TimerDisplay({ player, symbol, isCurrentPlayer, timer }) {
+  const minutes = Math.floor(timer / 60)
+  const seconds = timer % 60
 
   return (
-    <div className={`flex flex-col items-center p-4 ${isCurrentPlayer ? 'bg-blue-100' : 'bg-gray-200'} rounded-lg`}>
-      <div className={`text-lg font-semibold ${isCurrentPlayer ? 'text-blue-600' : 'text-gray-600'}`}>
-        {player} ({symbol})
+    <div className={`flex items-center space-x-3 p-2 rounded-md ${isCurrentPlayer ? 'bg-gray-700 text-white' : 'bg-secondary'}`}>
+      <div className="flex items-center justify-center w-10 h-10 text-2xl font-bold border border-current rounded">
+        {symbol}
       </div>
-      <div className="flex items-center mt-2">
-        <Clock className="w-4 h-4 mr-2" />
-        <span className="text-xl font-mono">
-          00:00
-        </span>
+      <div className="flex flex-col">
+        <span className="font-medium truncate max-w-[100px]">{player}</span>
+        <div className="flex items-center text-sm">
+          <Clock className="w-3 h-3 mr-1" />
+          <span className="font-mono">
+            {minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
+          </span>
+        </div>
       </div>
     </div>
   )
 }
 
 export default function Sample() {
+
+  function calculateWinner(squares) {
+    const lines = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ]
+    for (let i = 0; i < lines.length; i++) {
+      const [a, b, c] = lines[i]
+      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+        return { winner: squares[a], line: lines[i] }
+      }
+    }
+    return { winner: null, line: null }
+  }
+
+
+  let status
+  if (winner) {
+    status = `Winner: ${winner === "X" ? player1 : player2}`
+  } else if (currentSquares.every(Boolean)) {
+    status = "Draw!"
+  } else {
+    status = `Next player: ${currentPlayer === "X" ? player1 : player2}`
+  }
 
   const [squares, setSquares] = useState(Array(9).fill(null))
 

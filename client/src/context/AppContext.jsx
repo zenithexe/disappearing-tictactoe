@@ -16,10 +16,26 @@ export const AppContextProvider = ({ children }) => {
     9: null,
   });
   const [roomId, setRoomId] = useState("");
+  const [players, setPlayers] = useState({
+    pX: "Player1",
+    pO: "Player2",
+  });
+  const [playerTurn, setPlayerTurn] = useState();
 
   return (
     <AppContext.Provider
-      value={{ socket, setSocket, board, setBoard, roomId, setRoomId }}
+      value={{
+        socket,
+        setSocket,
+        board,
+        setBoard,
+        roomId,
+        setRoomId,
+        players,
+        setPlayers,
+        playerTurn,
+        setPlayerTurn,
+      }}
     >
       {children}
     </AppContext.Provider>

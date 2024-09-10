@@ -7,7 +7,8 @@ import { useAppContext } from "./context/AppContext";
 import { Button } from "./components/ui/button";
 
 function App() {
-  const { setSocket, setBoard, roomId, setRoomId } = useAppContext();
+  const { setSocket, setBoard, roomId, setRoomId, setPlayers, setPlayerTurn } =
+    useAppContext();
 
   const socket = useMemo(() => io("http://localhost:8000"), []);
 
@@ -30,6 +31,15 @@ function App() {
         console.log("Update");
         setBoard(data);
       });
+
+      socket.on("player-update", (pX, pO, turn) => {
+        setPlayers({ pX, pO });
+        setPlayerTurn(turn)
+      });
+
+      socket.on('update-turn', (turn)=>{
+        setPlayerTurn(turn)
+      })
     });
   }, []);
 

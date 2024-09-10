@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Clock } from "lucide-react";
 import { Button } from "./ui/button";
 import { useAppContext } from "@/context/AppContext";
+import CountdownTimer from "./CountdownTimer";
 
 function Square({ index, value }) {
   const { socket, roomId } = useAppContext();
@@ -44,31 +45,37 @@ function Board({ boardState }) {
   );
 }
 
-// function TimerDisplay({ player='PlayerName', symbol='X', isCurrentPlayer='true' }) {
-
-//   return (
-//     <div className={`flex flex-col items-center p-4 ${isCurrentPlayer ? 'bg-blue-100' : 'bg-gray-200'} rounded-lg`}>
-//       <div className={`text-lg font-semibold ${isCurrentPlayer ? 'text-blue-600' : 'text-gray-600'}`}>
-//         {player} ({symbol})
-//       </div>
-//       <div className="flex items-center mt-2">
-//         <Clock className="w-4 h-4 mr-2" />
-//         <span className="text-xl font-mono">
-//           00:00
-//         </span>
-//       </div>
-//     </div>
-//   )
-// }
+function TimerDisplay({ player, symbol, isActive, timer }) {
+  return (
+    <div className={`flex space-x-3 py-2 px-3 rounded-md ${isActive ? "bg-white":"bg-gray-200"} shadow-sm`}>
+      <div className="flex items-center justify-center w-10 h-10 text-2xl font-bold border border-current rounded">
+        {symbol}
+      </div>
+      <div className="flex flex-col">
+        <span className="font-medium truncate max-w-[100px]">{player}</span>
+        <div className="flex items-center text-sm">
+          <Clock className="w-3 h-3 mr-1" />
+          <span className="font-mono">
+            <CountdownTimer/>
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 function Game() {
-  const { socket, board, roomId } = useAppContext();
+  const { socket, board, roomId, players, playerTurn } = useAppContext();
   const [player, setPlayer] = useState();
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <div className="flex flex-col items-center">
-        <h1 className="text-4xl font-bold mb-8">Room</h1>
+        <h1 className="text-4xl font-bold mb-8">Tic-Tac-Toe</h1>
+        <div className="flex gap-2 my-3">
+          <TimerDisplay player={players.pX} symbol={"X"} isActive={playerTurn==='pX'}/>
+          <TimerDisplay player={players.pO} symbol={"O"} isActive={playerTurn==='pO'}/>
+        </div>
         <Board boardState={board} />
       </div>
       <Button 
