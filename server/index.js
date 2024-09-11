@@ -13,6 +13,7 @@ let gameObj = {
   pO: null,
   pX_name: null,
   pO_name: null,
+  match_duration: null,
   board: {
     1: null,
     2: null,
@@ -25,8 +26,14 @@ let gameObj = {
     9: null,
   },
   moves: [],
-  pX_timer: "time1",
-  pO_timer: "time2",
+  pX_timer: {
+    min: 5,
+    sec: 1,
+  },
+  pO_timer: {
+    min: 5,
+    sec: 1,
+  },
 };
 
 let activeGames = {};
@@ -48,7 +55,7 @@ io.on("connection", (socket) => {
 
   socket.emit("board-init", gameObj.board);
 
-  socket.on("create-room", (name) => {
+  socket.on("create-room", (name, duration) => {
     let roomId = generateRandomNumber();
 
     while (activeGames[roomId]) {
@@ -60,36 +67,56 @@ io.on("connection", (socket) => {
       room: roomId,
       pX: socket.id,
       pX_name: name,
+      duration: duration,
+      pX_timer: {
+        min: duration,
+        sec: 1,
+      },
+      pO_timer: {
+        min: duration,
+        sec: 1,
+      },
     };
 
     socket.join(roomId);
     console.log(`${name}: ${socket.id} created room ${roomId}`);
-    io.to(roomId).emit("room-created", roomId);
+    io.to(roomId).emit("room-created", roomId, activeGames[roomId].duration);
   });
 
   socket.on("join-room", (roomId, name) => {
-    if (!activeGames[roomId].pX || !activeGames[roomId].pO) {
-      if (activeGames[roomId].room) {
-        activeGames[roomId].pO = socket.id;
-        activeGames[roomId].pO_name = name;
-        socket.join(roomId);
-        console.log(`${name}: ${socket.id} joined room ${roomId}`);
-        io.to(roomId).emit("player-update", activeGames[roomId].pX_name, activeGames[roomId].pO_name, activeGames[roomId].current);
-      }
+    if (!activeGames[roomId]) {
+      socket.emit("toast", true, "Room Not Found", "Wrong Room Code!");
+      return;
     }
+
+    activeGames[roomId].pO = socket.id;
+    activeGames[roomId].pO_name = name;
+    socket.join(roomId);
+    console.log(`${name}: ${socket.id} joined room ${roomId}`);
+
+    io.to(roomId).emit(
+      "start-match",
+      activeGames[roomId].pX_name,
+      activeGames[roomId].pO_name,
+      activeGames[roomId].current,
+      activeGames[roomId].duration,
+    );
+
   });
 
-  socket.on("move", (index, roomId) => {
+  socket.on("move", (index, roomId,timer1,timer2) => {
     let game = activeGames[roomId];
 
     if (socket.id == game[game.current]) {
       game.board[index] = game.current.charAt(1);
       game.current = game.current == "pO" ? "pX" : "pO";
       activeGames[roomId] = game;
+      activeGames[roomId].pX_timer = timer1;
+      activeGames[roomId].pO_timer = timer2;
       io.to(roomId).emit("board-update", activeGames[roomId].board);
-      io.to(roomId).emit('update-turn', activeGames[roomId].current)
+      io.to(roomId).emit("turn-update", activeGames[roomId].current);
     }
-  
+
   });
 
   socket.on("clearBoard", (roomId) => {
@@ -110,6 +137,8 @@ io.on("connection", (socket) => {
     activeGames[roomId] = gameObj;
     io.to(roomId).emit("board-update", activeGames[roomId].board);
   });
+
+
 });
 
 server.listen(port, () => {

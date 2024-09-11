@@ -1,32 +1,62 @@
 import React, { useState, useEffect } from 'react';
 
-const CountdownTimer = ({ initialMinutes = 1, initialSeconds = 0 }) => {
-  const [minutes, setMinutes] = useState(initialMinutes);
-  const [seconds, setSeconds] = useState(initialSeconds);
+const CountdownTimer = ({timerState, setTimerState, isTimerEnable}) => {
+  const [minutes, setMinutes] = useState(1);
+  const [seconds, setSeconds] = useState(0);
+  const [countdown, setCountdown] = useState();
+  const [mount1,setMount1] =useState(true);
+  const [mount2,setMount2] = useState(true);
+  const [toggle,setToggle] = useState(true);
+
+  const {min, sec} = timerState;
 
   useEffect(() => {
-    let countdown;
 
-    if (seconds > 0 || minutes > 0) {
-      countdown = setInterval(() => {
-        if (seconds > 0) {
-          setSeconds(seconds - 1);
-        } else if (minutes > 0) {
-          setMinutes(minutes - 1);
-          setSeconds(59);
-        }
-      }, 1000);
+    if(mount2){
+      setMount2(false);
+      return
     }
 
-    // Clean up the interval when the component unmounts or the timer stops
-    return () => clearInterval(countdown);
-  }, [seconds, minutes]);
+    if(isTimerEnable){
+      let countdown
+      if (sec > 0 || min > 0) {
+        countdown = setInterval(() => {
+          if (sec > 0) {
+            setTimerState({...timerState, sec:sec - 1});
+          } else if (minutes > 0) {
+            setTimerState({min:min-1, sec:59});
+          }
+        }, 1000);
+        setCountdown(countdown)
+      }
+      
+      // Clean up the interval when the component unmounts or the timer stops
+      return () => clearInterval(countdown)
+    }
+
+
+  }, [timerState,isTimerEnable]);
+
+
+  // useEffect(()=>{
+  //   if(mount1){
+  //     setMount1(false);
+  //     return
+  //   }
+
+  //   if(isTimerEnable==false && countdown){
+      
+  //     clearInterval(countdown)
+  //   }else {
+  //     setToggle(!toggle)
+  //   }
+  // },[isTimerEnable])
 
   return (
     <div>
       <h1>
-        {minutes < 10 ? `0${minutes}` : minutes}:
-        {seconds < 10 ? `0${seconds}` : seconds}
+        {min < 10 ? `0${min}` : min}:
+        {sec < 10 ? `0${sec}` : sec}
       </h1>
     </div>
   );

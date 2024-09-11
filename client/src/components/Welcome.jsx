@@ -8,6 +8,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,12 +28,15 @@ function StartPlayingDialog({ isDialogOpen, setIsDialogOpen }) {
     const formData = new FormData(e.target);
 
     const playerName = formData.get("playerName");
+    const duration  = formData.get("duration");
     if(!playerName){
       console.log("Name is Required");
       return;
     }
 
-    socket.emit("create-room",playerName);
+    console.log(playerName,">>>",duration)
+
+    socket.emit("create-room",playerName,duration);
   }
 
   function handleJoinRoom(e) {
@@ -57,7 +67,7 @@ function StartPlayingDialog({ isDialogOpen, setIsDialogOpen }) {
             </TabsList>
             <TabsContent value="join">
               <form
-                className="h-[200px] flex flex-col justify-between"
+                className="space-y-4 flex flex-col justify-between"
                 onSubmit={handleJoinRoom}
               >
                 <div className=" space-y-4">
@@ -83,7 +93,7 @@ function StartPlayingDialog({ isDialogOpen, setIsDialogOpen }) {
             </TabsContent>
             <TabsContent value="create">
               <form
-                className="h-[200px] space-y-4 flex flex-col justify-between"
+                className="space-y-4 flex flex-col justify-between"
                 onSubmit={handleCreateRoom}
               >
                 <div>
@@ -94,6 +104,19 @@ function StartPlayingDialog({ isDialogOpen, setIsDialogOpen }) {
                     placeholder="Enter your name"
                   />
                 </div>
+                <div>
+                    <Label htmlFor="duration">Game Duration</Label>
+                    <Select name="duration" defaultValue="5">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select game duration" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="3">3 minutes</SelectItem>
+                        <SelectItem value="5">5 minutes</SelectItem>
+                        <SelectItem value="10">10 minutes</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 <Button type="submit">Create Room</Button>
               </form>
             </TabsContent>
