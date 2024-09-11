@@ -14,29 +14,34 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAppContext } from "@/context/AppContext";
 
 function StartPlayingDialog({ isDialogOpen, setIsDialogOpen }) {
-  const { socket, setRoomId } = useAppContext();
+  const { socket, setRoomId, setClientPlayer } = useAppContext();
 
   function handleCreateRoom(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
 
     const playerName = formData.get("playerName");
-    const duration  = formData.get("duration");
-    if(!playerName){
+    const duration = formData.get("duration");
+    if (!playerName) {
       console.log("Name is Required");
       return;
     }
 
-    console.log(playerName,">>>",duration)
+    setClientPlayer({
+      name: playerName,
+      tag: "pX",
+    });
 
-    socket.emit("create-room",playerName,duration);
+    console.log(playerName, ">>>", duration);
+
+    socket.emit("create-room", playerName, duration);
   }
 
   function handleJoinRoom(e) {
@@ -46,6 +51,10 @@ function StartPlayingDialog({ isDialogOpen, setIsDialogOpen }) {
     const playerName = formData.get("playerName");
 
     setRoomId(roomId);
+    setClientPlayer({
+      name: playerName,
+      tag: "pO",
+    });
     socket.emit("join-room", roomId, playerName);
   }
 
@@ -105,18 +114,19 @@ function StartPlayingDialog({ isDialogOpen, setIsDialogOpen }) {
                   />
                 </div>
                 <div>
-                    <Label htmlFor="duration">Game Duration</Label>
-                    <Select name="duration" defaultValue="5">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select game duration" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="3">3 minutes</SelectItem>
-                        <SelectItem value="5">5 minutes</SelectItem>
-                        <SelectItem value="10">10 minutes</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <Label htmlFor="duration">Game Duration</Label>
+                  <Select name="duration" defaultValue="5">
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select game duration" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1 minutes</SelectItem>
+                      <SelectItem value="3">3 minutes</SelectItem>
+                      <SelectItem value="5">5 minutes</SelectItem>
+                      <SelectItem value="10">10 minutes</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <Button type="submit">Create Room</Button>
               </form>
             </TabsContent>

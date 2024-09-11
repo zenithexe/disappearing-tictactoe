@@ -6,6 +6,7 @@ import CountdownTimer from "./CountdownTimer";
 import { useToast } from "@/components/hooks/use-toast";
 import { Input } from "./ui/input";
 import Loading from "./Loading";
+import Result from "./Result";
 
 function Square({ index, value }) {
   const { socket, roomId, matchStatus, timer1, timer2 } = useAppContext();
@@ -156,27 +157,7 @@ function Game() {
         )}
         <Board boardState={board} />
       </div>
-      <Button
-        onClick={(e) => {
-          socket.emit("clearBoard", roomId);
-        }}
-        className="mt-6"
-      >
-        Clear
-      </Button>
-      <Button
-        onClick={(e) => {
-          setPlayerTurn(prev =>{
-            if(prev=='pX'){
-              return 'pO'
-            }else{
-              return 'pX'
-            }
-          });
-        }}
-      >
-        Test
-      </Button>
+        <Result/>
     </div>
   );
 }

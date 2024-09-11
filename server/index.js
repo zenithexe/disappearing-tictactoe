@@ -115,9 +115,24 @@ io.on("connection", (socket) => {
       activeGames[roomId].pO_timer = timer2;
       io.to(roomId).emit("board-update", activeGames[roomId].board);
       io.to(roomId).emit("turn-update", activeGames[roomId].current);
+
+      console.log(activeGames[roomId])
     }
 
   });
+
+  socket.on('time-out',(roomId,clientPlayer)=>{
+    console.log(`${socket.id} time-out`)
+    let winnerId;
+    if(clientPlayer.tag='pX'){
+      winnerId = activeGames[roomId].pO;
+    }
+    else{
+      winnerId = activeGames[roomId].pX;
+    }
+
+    io.to(roomId).emit("game-over",winnerId)
+  })
 
   socket.on("clearBoard", (roomId) => {
     gameObj = {

@@ -4,6 +4,8 @@ export const AppContext = createContext();
 
 export const AppContextProvider = ({ children }) => {
   const [socket, setSocket] = useState();
+  const [clientPlayer,setClientPlayer] = useState();
+
   const [board, setBoard] = useState({
     1: null,
     2: null,
@@ -27,19 +29,24 @@ export const AppContextProvider = ({ children }) => {
 
   const [timer1,setTimer1] = useState({
     min:5,
-    sec:1,
+    sec:0,
   })
 
   const [timer2,setTimer2] = useState({
     min:5,
-    sec:1,
+    sec:0,
   })
+
+  const [winner,setWinner] = useState(null)
 
   return (
     <AppContext.Provider
       value={{
         socket,
         setSocket,
+
+        clientPlayer,
+        setClientPlayer,
 
         board,
         setBoard,
@@ -64,6 +71,9 @@ export const AppContextProvider = ({ children }) => {
 
         timer2,
         setTimer2,
+
+        winner,
+        setWinner
       }}
     >
       {children}

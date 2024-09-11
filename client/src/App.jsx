@@ -7,6 +7,7 @@ import { useAppContext } from "./context/AppContext";
 import { Button } from "./components/ui/button";
 import { useToast } from "@/components/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster"
+import Result from "./components/Result";
 
 function App() {
   const { 
@@ -18,7 +19,8 @@ function App() {
     setPlayers,
     setPlayerTurn,
     setTimer1,
-    setTimer2, 
+    setTimer2,
+    setWinner, 
   } = useAppContext();
 
   const { toast } = useToast();
@@ -36,7 +38,7 @@ function App() {
         setMatchStatus("WAITING");
         setTimer1({
           min:duration,
-          sec:1
+          sec:0
         })
         setTimer2({
           min:duration,
@@ -60,7 +62,7 @@ function App() {
         setMatchStatus("ON");
         setTimer1({
           min:duration,
-          sec:1
+          sec:0
         })
         setTimer2({
           min:duration,
@@ -71,6 +73,10 @@ function App() {
       socket.on("turn-update", (turn) => {
         setPlayerTurn(turn);
       });
+
+      socket.on("game-over",(winnerId)=>{
+        setWinner(winnerId)
+      })
 
       socket.on("toast", (error, title, message)=>{
         toast({
