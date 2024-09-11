@@ -6,14 +6,14 @@ import { calculateWinner, generateRandomNumber, getGamebySocketId } from "./lib/
 dotenv.config();
 const port = process.env.SERVER_PORT;
 
-let gameObj = {
+const gameObj = {
   current: "pX",
   room: null,
   pX: null,
   pO: null,
   pX_name: null,
   pO_name: null,
-  match_duration: null,
+  duration:null,
   board: {
     1: null,
     2: null,
@@ -66,18 +66,30 @@ io.on("connection", (socket) => {
     }
 
     activeGames[roomId] = {
-      ...gameObj,
+      current: 'pX',
       room: roomId,
       pX: socket.id,
       pX_name: name,
       duration: duration,
+      board: {
+        1: null,
+        2: null,
+        3: null,
+        4: null,
+        5: null,
+        6: null,
+        7: null,
+        8: null,
+        9: null,
+      },
+      moves:[],
       pX_timer: {
         min: duration,
-        sec: 1,
+        sec: 0,
       },
       pO_timer: {
         min: duration,
-        sec: 1,
+        sec: 0,
       },
     };
 
@@ -136,6 +148,9 @@ io.on("connection", (socket) => {
           activeGames[roomId].board
         );
         delete activeGames[roomId];
+
+        console.log("--------Deleted----------")
+        console.log(activeGames)
         return;
       }
 
