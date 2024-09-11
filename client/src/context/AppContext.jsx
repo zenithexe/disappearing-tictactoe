@@ -38,6 +38,7 @@ export const AppContextProvider = ({ children }) => {
   })
 
   const [winner,setWinner] = useState(null)
+  const [winningLine,setWinningLine] = useState([])
 
   return (
     <AppContext.Provider
@@ -73,7 +74,10 @@ export const AppContextProvider = ({ children }) => {
         setTimer2,
 
         winner,
-        setWinner
+        setWinner,
+
+        winningLine,
+        setWinningLine,
       }}
     >
       {children}

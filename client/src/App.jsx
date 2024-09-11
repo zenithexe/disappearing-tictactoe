@@ -20,7 +20,8 @@ function App() {
     setPlayerTurn,
     setTimer1,
     setTimer2,
-    setWinner, 
+    setWinner,
+    setWinningLine, 
   } = useAppContext();
 
   const { toast } = useToast();
@@ -74,8 +75,16 @@ function App() {
         setPlayerTurn(turn);
       });
 
-      socket.on("game-over",(winnerId)=>{
+      socket.on("game-over-by-timeout",(winnerId)=>{
         setWinner(winnerId)
+        setMatchStatus("END");
+      })
+
+      socket.on("game-over-by-move",(winner,winningLine,board)=>{
+        setWinner(winner)
+        setWinningLine(winningLine)
+        setBoard(board)
+        setMatchStatus("END");
       })
 
       socket.on("toast", (error, title, message)=>{

@@ -2,7 +2,7 @@ import express from "express";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import dotenv from "dotenv";
-import { generateRandomNumber } from "./lib/utils.js";
+import { calculateWinner, generateRandomNumber } from "./lib/utils.js";
 dotenv.config();
 const port = process.env.SERVER_PORT;
 
@@ -99,12 +99,11 @@ io.on("connection", (socket) => {
       activeGames[roomId].pX_name,
       activeGames[roomId].pO_name,
       activeGames[roomId].current,
-      activeGames[roomId].duration,
+      activeGames[roomId].duration
     );
-
   });
 
-  socket.on("move", (index, roomId,timer1,timer2) => {
+  socket.on("move", (index, roomId, timer1, timer2) => {
     let game = activeGames[roomId];
 
     if (socket.id == game[game.current]) {
@@ -113,26 +112,37 @@ io.on("connection", (socket) => {
       activeGames[roomId] = game;
       activeGames[roomId].pX_timer = timer1;
       activeGames[roomId].pO_timer = timer2;
+
+      const { winner, line } = calculateWinner(activeGames[roomId].board);
+
+      if (winner) {
+        io.to(roomId).emit(
+          "game-over-by-move",
+          socket.id,
+          line,
+          activeGames[roomId].board
+        );
+        return;
+      }
+
       io.to(roomId).emit("board-update", activeGames[roomId].board);
       io.to(roomId).emit("turn-update", activeGames[roomId].current);
 
-      console.log(activeGames[roomId])
+      console.log(activeGames[roomId]);
     }
-
   });
 
-  socket.on('time-out',(roomId,clientPlayer)=>{
-    console.log(`${socket.id} time-out`)
+  socket.on("time-out", (roomId, clientPlayer) => {
+    console.log(`${socket.id} time-out`);
     let winnerId;
-    if(clientPlayer.tag='pX'){
+    if ((clientPlayer.tag = "pX")) {
       winnerId = activeGames[roomId].pO;
-    }
-    else{
+    } else {
       winnerId = activeGames[roomId].pX;
     }
 
-    io.to(roomId).emit("game-over",winnerId)
-  })
+    io.to(roomId).emit("game-over-by-timeout", winnerId);
+  });
 
   socket.on("clearBoard", (roomId) => {
     gameObj = {
@@ -152,8 +162,6 @@ io.on("connection", (socket) => {
     activeGames[roomId] = gameObj;
     io.to(roomId).emit("board-update", activeGames[roomId].board);
   });
-
-
 });
 
 server.listen(port, () => {

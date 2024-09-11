@@ -8,7 +8,7 @@ import { Input } from "./ui/input";
 import Loading from "./Loading";
 import Result from "./Result";
 
-function Square({ index, value }) {
+function Square({ index, value, isWinning }) {
   const { socket, roomId, matchStatus, timer1, timer2 } = useAppContext();
 
   function onSquareClick(index) {
@@ -19,7 +19,9 @@ function Square({ index, value }) {
   return value || matchStatus != "ON" ? (
     <Button
       disabled
-      className="h-20 w-20 border rounded-lg shadow text-gray-950 border-gray-300 bg-white text-4xl font-bold leading-9 m-1"
+      className={`h-20 w-20 border rounded-lg shadow text-gray-950 border-gray-300 ${
+        isWinning ? "bg-green-200" : "bg-white"
+      } text-4xl font-bold leading-9 m-1`}
     >
       {value ? value : "-"}
     </Button>
@@ -37,14 +39,20 @@ function Square({ index, value }) {
 }
 
 function Board({ boardState }) {
-  let squares;
-
-  squares = Object.values(boardState);
+  const { winningLine } = useAppContext();
+  let squares = Object.values(boardState);
 
   return (
     <div className="grid grid-cols-3 gap-1">
       {squares?.map((square, i) => (
-        <Square key={i} index={i} value={square} />
+        <Square
+          key={i}
+          index={i}
+          value={square}
+          isWinning={
+            winningLine ? winningLine.includes((i + 1).toString()) : false
+          }
+        />
       ))}
     </div>
   );
@@ -127,17 +135,17 @@ function Game() {
     setTimer2,
   } = useAppContext();
 
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <div className="flex flex-col items-center">
         <h1 className="text-4xl font-bold mb-8">Tic-Tac-Toe</h1>
         <RoomCodeDisplay roomCode={roomId} />
-        {matchStatus != "ON" && (
+        {matchStatus == "WAITING" && (
           <div className="my-3">
             <Loading />
           </div>
-        )}{(
+        )}
+        {
           <div className="flex gap-2 my-3">
             <TimerDisplay
               timerState={timer1}
@@ -154,10 +162,10 @@ function Game() {
               isActive={playerTurn === "pO"}
             />
           </div>
-        )}
+        }
         <Board boardState={board} />
       </div>
-        <Result/>
+      <Result />
     </div>
   );
 }

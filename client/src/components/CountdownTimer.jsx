@@ -2,7 +2,7 @@ import { useAppContext } from "@/context/AppContext";
 import React, { useState, useEffect } from "react";
 
 const CountdownTimer = ({ timerState, setTimerState, isTimerEnable }) => {
-  const { socket, roomId, clientPlayer } = useAppContext();
+  const { socket, roomId, clientPlayer, matchStatus } = useAppContext();
   const [mount, setMount] = useState(true);
 
   const { min, sec } = timerState;
@@ -13,7 +13,7 @@ const CountdownTimer = ({ timerState, setTimerState, isTimerEnable }) => {
       return;
     }
 
-    if (isTimerEnable) {
+    if (isTimerEnable && matchStatus==='ON') {
       let countdown;
       if (sec > 0 || min > 0) {
         countdown = setInterval(() => {
