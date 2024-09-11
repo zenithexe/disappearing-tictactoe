@@ -1,13 +1,12 @@
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { io } from "socket.io-client";
 import Welcome from "./components/Welcome";
-import Sample from "./components/Sample";
 import Game from "./components/Game";
 import { useAppContext } from "./context/AppContext";
-import { Button } from "./components/ui/button";
 import { useToast } from "@/components/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster"
-import Result from "./components/Result";
+import dotenv from "dotenv";
+dotenv.config();
 
 function App() {
   const { 
@@ -27,7 +26,7 @@ function App() {
 
   const { toast } = useToast();
 
-  const socket = useMemo(() => io("http://localhost:8000"), []);
+  const socket = useMemo(() => io(process.env.SERVER_URL), []);
 
   useEffect(() => {
     socket.on("connect", () => {
