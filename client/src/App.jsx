@@ -5,10 +5,12 @@ import Game from "./components/Game";
 import { useAppContext } from "./context/AppContext";
 import { useToast } from "@/components/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster"
-import dotenv from "dotenv";
-dotenv.config();
+
+
+const serverURL = import.meta.env.VITE_API_URL;
 
 function App() {
+  
   const { 
     setSocket,
     setBoard,
@@ -26,7 +28,7 @@ function App() {
 
   const { toast } = useToast();
 
-  const socket = useMemo(() => io(process.env.SERVER_URL), []);
+  const socket = useMemo(() => io(serverURL), []);
 
   useEffect(() => {
     socket.on("connect", () => {
