@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import {
   Dialog,
@@ -22,6 +22,17 @@ import { useAppContext } from "@/context/AppContext";
 
 function StartPlayingDialog({ isDialogOpen, setIsDialogOpen }) {
   const { socket, setRoomId, setClientPlayer } = useAppContext();
+  const [error, setError] = useState({
+    error: false,
+    message: "No Error.",
+  });
+
+  useEffect(() => {
+    setError({
+      error: false,
+      message: "No Error.",
+    });
+  }, [isDialogOpen]);
 
   function handleCreateRoom(e) {
     e.preventDefault();
@@ -29,8 +40,12 @@ function StartPlayingDialog({ isDialogOpen, setIsDialogOpen }) {
 
     const playerName = formData.get("playerName");
     const duration = formData.get("duration");
-    if (!playerName) {
-      console.log("Name is Required");
+
+    if (!playerName || !duration) {
+      setError({
+        error: true,
+        message: "Missing Field.",
+      });
       return;
     }
 
@@ -38,10 +53,8 @@ function StartPlayingDialog({ isDialogOpen, setIsDialogOpen }) {
       name: playerName,
       tag: "pX",
     });
-
-    console.log(playerName, ">>>", duration);
-
     socket.emit("create-room", playerName, duration);
+    setIsDialogOpen(false);
   }
 
   function handleJoinRoom(e) {
@@ -50,12 +63,21 @@ function StartPlayingDialog({ isDialogOpen, setIsDialogOpen }) {
     const roomId = formData.get("roomId");
     const playerName = formData.get("playerName");
 
+    if (!playerName || !roomId) {
+      setError({
+        error: true,
+        message: "Missing Field.",
+      });
+      return;
+    }
+
     setRoomId(roomId);
     setClientPlayer({
       name: playerName,
       tag: "pO",
     });
     socket.emit("join-room", roomId, playerName);
+    setIsDialogOpen(false);
   }
 
   return (
@@ -97,6 +119,9 @@ function StartPlayingDialog({ isDialogOpen, setIsDialogOpen }) {
                     />
                   </div>
                 </div>
+                {error.error && (
+                  <p className=" font-mono text-red-500"> {error.message}</p>
+                )}
                 <Button type="submit">Join Room</Button>
               </form>
             </TabsContent>
@@ -127,6 +152,9 @@ function StartPlayingDialog({ isDialogOpen, setIsDialogOpen }) {
                     </SelectContent>
                   </Select>
                 </div>
+                {error.error && (
+                  <p className=" font-mono text-red-500"> {error.message}</p>
+                )}
                 <Button type="submit">Create Room</Button>
               </form>
             </TabsContent>

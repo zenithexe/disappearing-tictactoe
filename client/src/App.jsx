@@ -15,6 +15,7 @@ function App() {
     setBoard,
     roomId,
     setRoomId,
+    matchStatus,
     setMatchStatus,
     setPlayers,
     setPlayerTurn,
@@ -96,6 +97,11 @@ function App() {
       })
       
     });
+
+
+    return () => {
+      socket.emit('disconnect');
+    };
   }, []);
 
   useEffect(() => {
@@ -104,10 +110,13 @@ function App() {
 
   return (
     <>
+    {matchStatus=='OFF'? 
       <div className="h-screen flex justify-center items-center">
         <Welcome />
       </div>
+      :
       <Game />
+    }
       <Toaster/>
     </>
   );

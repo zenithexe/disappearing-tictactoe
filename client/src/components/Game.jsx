@@ -140,12 +140,11 @@ function Game() {
       <div className="flex flex-col items-center">
         <h1 className="text-4xl font-bold mb-8">Tic-Tac-Toe</h1>
         <RoomCodeDisplay roomCode={roomId} />
-        {matchStatus == "WAITING" && (
+        {matchStatus == "WAITING" ? (
           <div className="my-3">
             <Loading />
           </div>
-        )}
-        {
+        ) : (
           <div className="flex gap-2 my-3">
             <TimerDisplay
               timerState={timer1}
@@ -162,7 +161,7 @@ function Game() {
               isActive={playerTurn === "pO"}
             />
           </div>
-        }
+        )}
         <Board boardState={board} />
       </div>
       <Result />

@@ -2,7 +2,7 @@ import express from "express";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import dotenv from "dotenv";
-import { calculateWinner, generateRandomNumber } from "./lib/utils.js";
+import { calculateWinner, generateRandomNumber, getGamebySocketId } from "./lib/utils.js";
 dotenv.config();
 const port = process.env.SERVER_PORT;
 
@@ -84,6 +84,8 @@ io.on("connection", (socket) => {
     socket.join(roomId);
     console.log(`${name}: ${socket.id} created room ${roomId}`);
     io.to(roomId).emit("room-created", roomId, activeGames[roomId].duration);
+    console.log("----------Created------------")
+    console.log(activeGames)
   });
 
   socket.on("join-room", (roomId, name) => {
@@ -104,6 +106,9 @@ io.on("connection", (socket) => {
       activeGames[roomId].current,
       activeGames[roomId].duration
     );
+
+    console.log("----------Joined------------")
+    console.log(activeGames)
   });
 
   socket.on("move", (index, roomId, timer1, timer2) => {
@@ -130,14 +135,12 @@ io.on("connection", (socket) => {
           line,
           activeGames[roomId].board
         );
-        activeGames[roomId] = null;
+        delete activeGames[roomId];
         return;
       }
 
       io.to(roomId).emit("board-update", activeGames[roomId].board);
       io.to(roomId).emit("turn-update", activeGames[roomId].current);
-
-      console.log(activeGames[roomId]);
     }
   });
 
@@ -156,8 +159,37 @@ io.on("connection", (socket) => {
     }
 
     io.to(roomId).emit("game-over-by-timeout", winnerId);
-    socket[roomId] = null;
+    delete activeGames[roomId];
+
+    console.log("----------Deleted------------")
+    console.log(activeGames)
   });
+
+  socket.on('disconnect',()=>{
+    console.log(`${socket.id} disconnected.`)
+    const game = getGamebySocketId(activeGames,socket.id);
+
+    if(!game){
+      console.log("No Game")
+      return
+    }
+
+    let winnerId;
+    if (game.pX == socket.id) {
+      winnerId = game.pO;
+    } else {
+      winnerId = game.pX;
+    }
+
+    console.log(game.room)
+
+    io.to(game.room).emit("game-over-by-timeout", winnerId);
+    delete activeGames[game.room];
+
+    console.log("----------Deleted------------")
+    console.log(activeGames)
+  })
+
 });
 
 server.listen(port, () => {
