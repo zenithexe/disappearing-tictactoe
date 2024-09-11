@@ -74,6 +74,7 @@ function TimerDisplay({ timerState, seTimerState, player, symbol, isActive }) {
           <Clock className="w-3 h-3 mr-1" />
           <span className="font-mono">
             <CountdownTimer
+              symbol={symbol}
               timerState={timerState}
               setTimerState={seTimerState}
               isTimerEnable={isActive}

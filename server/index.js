@@ -167,7 +167,7 @@ io.on("connection", (socket) => {
 
     console.log(`${socket.id} time-out`);
     let winnerId;
-    if ((clientPlayer.tag = "pX")) {
+    if (clientPlayer.tag == "pX") {
       winnerId = activeGames[roomId].pO;
     } else {
       winnerId = activeGames[roomId].pX;

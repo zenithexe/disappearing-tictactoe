@@ -1,7 +1,7 @@
 import { useAppContext } from "@/context/AppContext";
 import React, { useState, useEffect } from "react";
 
-const CountdownTimer = ({ timerState, setTimerState, isTimerEnable }) => {
+const CountdownTimer = ({ symbol, timerState, setTimerState, isTimerEnable }) => {
   const { socket, roomId, clientPlayer, matchStatus } = useAppContext();
   const [mount, setMount] = useState(true);
 
@@ -25,7 +25,7 @@ const CountdownTimer = ({ timerState, setTimerState, isTimerEnable }) => {
         }, 1000);
       }
 
-      if (sec == 0 && min == 0) {
+      if (sec == 0 && min == 0 && clientPlayer.tag.charAt(1)==symbol) {
         socket.emit("time-out",roomId, clientPlayer);
       }
       // Clean up the interval when the component unmounts or the timer stops
