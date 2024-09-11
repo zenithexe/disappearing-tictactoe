@@ -36,6 +36,7 @@ let gameObj = {
   },
 };
 
+//Games Lobby
 let activeGames = {};
 
 const app = express();
@@ -85,7 +86,7 @@ io.on("connection", (socket) => {
 
   socket.on("join-room", (roomId, name) => {
     if (!activeGames[roomId]) {
-      socket.emit("toast", true, "Room Not Found", "Wrong Room Code!");
+      socket.emit("toast", false, "Room Not Found", "Wrong Room Code!");
       return;
     }
 
@@ -104,6 +105,11 @@ io.on("connection", (socket) => {
   });
 
   socket.on("move", (index, roomId, timer1, timer2) => {
+    if(!activeGames[roomId]){
+      socket.emit("toast", false, "Room Not Found", "Server Error");
+      return
+    }
+
     let game = activeGames[roomId];
 
     if (socket.id == game[game.current]) {
@@ -122,6 +128,7 @@ io.on("connection", (socket) => {
           line,
           activeGames[roomId].board
         );
+        activeGames[roomId]=null
         return;
       }
 
@@ -133,6 +140,11 @@ io.on("connection", (socket) => {
   });
 
   socket.on("time-out", (roomId, clientPlayer) => {
+    if(!activeGames[roomId]){
+      socket.emit("toast", false, "Room Not Found", "Server Error");
+      return
+    }
+
     console.log(`${socket.id} time-out`);
     let winnerId;
     if ((clientPlayer.tag = "pX")) {
@@ -142,25 +154,7 @@ io.on("connection", (socket) => {
     }
 
     io.to(roomId).emit("game-over-by-timeout", winnerId);
-  });
-
-  socket.on("clearBoard", (roomId) => {
-    gameObj = {
-      ...activeGames[roomId],
-      board: {
-        1: null,
-        2: null,
-        3: null,
-        4: null,
-        5: null,
-        6: null,
-        7: null,
-        8: null,
-        9: null,
-      },
-    };
-    activeGames[roomId] = gameObj;
-    io.to(roomId).emit("board-update", activeGames[roomId].board);
+    socket[roomId]=null
   });
 });
 
