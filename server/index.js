@@ -46,7 +46,9 @@ let count = 0;
 
 const io = new Server(server, {
   cors: {
-    origin: "*", //All origin
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+    crendentials: true,
   },
 });
 
@@ -105,9 +107,9 @@ io.on("connection", (socket) => {
   });
 
   socket.on("move", (index, roomId, timer1, timer2) => {
-    if(!activeGames[roomId]){
+    if (!activeGames[roomId]) {
       socket.emit("toast", false, "Room Not Found", "Server Error");
-      return
+      return;
     }
 
     let game = activeGames[roomId];
@@ -128,7 +130,7 @@ io.on("connection", (socket) => {
           line,
           activeGames[roomId].board
         );
-        activeGames[roomId]=null
+        activeGames[roomId] = null;
         return;
       }
 
@@ -140,9 +142,9 @@ io.on("connection", (socket) => {
   });
 
   socket.on("time-out", (roomId, clientPlayer) => {
-    if(!activeGames[roomId]){
+    if (!activeGames[roomId]) {
       socket.emit("toast", false, "Room Not Found", "Server Error");
-      return
+      return;
     }
 
     console.log(`${socket.id} time-out`);
@@ -154,7 +156,7 @@ io.on("connection", (socket) => {
     }
 
     io.to(roomId).emit("game-over-by-timeout", winnerId);
-    socket[roomId]=null
+    socket[roomId] = null;
   });
 });
 
