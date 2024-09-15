@@ -19,6 +19,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAppContext } from "@/context/AppContext";
+import Loading from "./Loading";
+import LoadingDots from "./LoadingDots";
 
 function StartPlayingDialog({ isDialogOpen, setIsDialogOpen }) {
   const { socket, setRoomId, setClientPlayer } = useAppContext();
@@ -83,9 +85,6 @@ function StartPlayingDialog({ isDialogOpen, setIsDialogOpen }) {
   return (
     <>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogTrigger asChild>
-          <Button className="mt-8">Start Playing</Button>
-        </DialogTrigger>
         <DialogContent className="flex flex-col justify-start">
           <DialogHeader>
             <DialogTitle>Start Game</DialogTitle>
@@ -165,8 +164,13 @@ function StartPlayingDialog({ isDialogOpen, setIsDialogOpen }) {
   );
 }
 
-function Welcome() {
+function Welcome({ connectWebSocket, isGameServerActive }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  function onStartGame() {
+    connectWebSocket();
+    setIsDialogOpen(true);
+  }
   return (
     <>
       <div className="p-10 rounded-xl border text-center shadow">
@@ -178,12 +182,22 @@ function Welcome() {
           <br />
           Whoever score three tiles in a line, wins! Good Luck :)
         </p>
-        <div className="mt-10">
-          <StartPlayingDialog
-            isDialogOpen={isDialogOpen}
-            setIsDialogOpen={setIsDialogOpen}
-          />
-        </div>
+        {isGameServerActive ? (
+          <div className="mt-10">
+            <Button onClick={onStartGame} className="mt-8">Start Playing</Button>
+            <StartPlayingDialog
+              isDialogOpen={isDialogOpen}
+              setIsDialogOpen={setIsDialogOpen}
+            />
+          </div>
+        ) : (
+          <div className="mt-10 flex flex-col gap-2">
+            <LoadingDots />
+            <div>
+              <h1 className="font-semibold">Connecting to the Game Server.</h1>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

@@ -2,6 +2,7 @@ import express from "express";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import dotenv from "dotenv";
+import cors from 'cors';
 import { calculateWinner, generateRandomNumber, getGamebySocketId } from "./lib/utils.js";
 dotenv.config();
 const port = process.env.SERVER_PORT;
@@ -41,6 +42,8 @@ let activeGames = {};
 
 const app = express();
 const server = createServer(app);
+
+app.use(cors())
 
 let count = 0;
 
@@ -208,7 +211,10 @@ io.on("connection", (socket) => {
 });
 
 app.get('/', (req,res) =>{
-  res.send('Server is Running')
+  res.status(200).json({
+    active:true,
+    message:"Server is Running"
+  })
 })
 
 server.listen(port, () => {
