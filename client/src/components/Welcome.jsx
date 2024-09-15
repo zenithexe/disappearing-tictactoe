@@ -168,7 +168,7 @@ function Welcome({ connectWebSocket, isGameServerActive }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   function onStartGame() {
-    connectWebSocket();
+    // connectWebSocket();
     setIsDialogOpen(true);
   }
   return (
@@ -195,6 +195,8 @@ function Welcome({ connectWebSocket, isGameServerActive }) {
             <LoadingDots />
             <div>
               <h1 className="font-semibold">Connecting to the Game Server.</h1>
+              <p className="text-sm text-red-500">To save resources, the Game Server goes offline when not actively used. <br/>
+              Please wait, while the server gets started.</p>
             </div>
           </div>
         )}

@@ -28,15 +28,15 @@ function App() {
 
   const { toast } = useToast();
   const [isGameServerActive, setIsGameServerActive] = useState(false);
+  const [isMount, setMount] = useState(true)
  
+
+
   async function startServer() {
     try {
       if (!isGameServerActive) {
         const res = await fetch(gameServerURL);
-        console.log(res);
         if (res.ok) {
-          const data = await res.json();
-          console.log(data);
           setIsGameServerActive(true);
         }
       }
@@ -52,10 +52,18 @@ function App() {
     startServer();
   }, []);
 
+  useEffect(()=>{
+    if(isMount){
+      setMount(false)
+      return
+    }
+
+    connectWebSocket();
+  },[isGameServerActive])
 
   function connectWebSocket() {
     const socket = io(gameServerURL);
-
+    
     socket.on("connect", () => {
       console.log("This Client is connected.");
       console.log(socket.id);
@@ -127,6 +135,7 @@ function App() {
       socket.emit("disconnect");
     };
   }
+
 
 
   return (
