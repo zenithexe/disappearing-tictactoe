@@ -2,8 +2,13 @@ import express from "express";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import dotenv from "dotenv";
-import cors from 'cors';
-import { calculateWinner, generateRandomNumber, getGamebySocketId } from "./lib/utils.js";
+import cors from "cors";
+import {
+  calculateWinner,
+  drawCheck,
+  generateRandomNumber,
+  getGamebySocketId,
+} from "./lib/utils.js";
 dotenv.config();
 const port = process.env.SERVER_PORT;
 
@@ -14,7 +19,7 @@ const gameObj = {
   pO: null,
   pX_name: null,
   pO_name: null,
-  duration:null,
+  duration: null,
   board: {
     1: null,
     2: null,
@@ -43,9 +48,7 @@ let activeGames = {};
 const app = express();
 const server = createServer(app);
 
-app.use(cors())
-
-let count = 0;
+app.use(cors());
 
 const io = new Server(server, {
   cors: {
@@ -69,7 +72,7 @@ io.on("connection", (socket) => {
     }
 
     activeGames[roomId] = {
-      current: 'pX',
+      current: "pX",
       room: roomId,
       pX: socket.id,
       pX_name: name,
@@ -85,7 +88,7 @@ io.on("connection", (socket) => {
         8: null,
         9: null,
       },
-      moves:[],
+      moves: [],
       pX_timer: {
         min: duration,
         sec: 0,
@@ -99,8 +102,8 @@ io.on("connection", (socket) => {
     socket.join(roomId);
     console.log(`${name}: ${socket.id} created room ${roomId}`);
     io.to(roomId).emit("room-created", roomId, activeGames[roomId].duration);
-    console.log("----------Created------------")
-    console.log(activeGames)
+    console.log("----------Created------------");
+    console.log(activeGames);
   });
 
   socket.on("join-room", (roomId, name) => {
@@ -122,13 +125,13 @@ io.on("connection", (socket) => {
       activeGames[roomId].duration
     );
 
-    console.log("----------Joined------------")
-    console.log(activeGames)
+    console.log("----------Joined------------");
+    console.log(activeGames);
   });
 
   socket.on("move", (index, roomId, timer1, timer2) => {
     if (!activeGames[roomId]) {
-      socket.emit("toast", false, "Room Not Found", "Server Error");
+      socket.emit("toast", false, "Invalid Room", "Server Error");
       return;
     }
 
@@ -137,6 +140,18 @@ io.on("connection", (socket) => {
     if (socket.id == game[game.current]) {
       game.board[index] = game.current.charAt(1);
       game.current = game.current == "pO" ? "pX" : "pO";
+
+      //Updating Move Queue
+      let message = null;
+      if (activeGames[roomId].moves.length == 7) {
+        const disappearSquare = game.moves.shift();
+        game.board[disappearSquare] = null;
+        message = `Sqaure ${disappearSquare} - disappeared.`;
+      }
+      //Pushing New Move
+      game.moves.push(index);
+
+      //Applying Changes
       activeGames[roomId] = game;
       activeGames[roomId].pX_timer = timer1;
       activeGames[roomId].pO_timer = timer2;
@@ -144,20 +159,36 @@ io.on("connection", (socket) => {
       const { winner, line } = calculateWinner(activeGames[roomId].board);
 
       if (winner) {
+        let winnerName = null;
+        if (winner == "X") {
+          winnerName = activeGames[roomId].pX_name;
+        } else {
+          winnerName = activeGames[roomId].pO_name;
+        }
         io.to(roomId).emit(
           "game-over-by-move",
           socket.id,
           line,
-          activeGames[roomId].board
+          activeGames[roomId].board,
+          winnerName
         );
         delete activeGames[roomId];
 
-        console.log("--------Deleted----------")
-        console.log(activeGames)
+        console.log("--------Win - Deleted----------");
+        console.log(activeGames);
         return;
       }
 
-      io.to(roomId).emit("board-update", activeGames[roomId].board);
+      const draw = drawCheck(activeGames[roomId].board);
+      if (draw) {
+        io.to(roomId).emit("game-draw", activeGames[roomId].board);
+
+        console.log("--------Draw - Deleted----------");
+        console.log(activeGames);
+        return;
+      }
+
+      io.to(roomId).emit("board-update", activeGames[roomId].board, message);
       io.to(roomId).emit("turn-update", activeGames[roomId].current);
     }
   });
@@ -169,53 +200,60 @@ io.on("connection", (socket) => {
     }
 
     console.log(`${socket.id} time-out`);
-    let winnerId;
+    let winnerId, timeoutPlayer;
     if (clientPlayer.tag == "pX") {
       winnerId = activeGames[roomId].pO;
+      timeoutPlayer = activeGames[roomId].pX_name;
     } else {
       winnerId = activeGames[roomId].pX;
+      timeoutPlayer = activeGames[roomId].pO_name;
     }
 
-    io.to(roomId).emit("game-over-by-timeout", winnerId);
+    io.to(roomId).emit("game-over-by-timeout", winnerId, timeoutPlayer);
     delete activeGames[roomId];
 
-    console.log("----------Deleted------------")
-    console.log(activeGames)
+    console.log("----------Deleted------------");
+    console.log(activeGames);
   });
 
-  socket.on('disconnect',()=>{
-    console.log(`${socket.id} disconnected.`)
-    const game = getGamebySocketId(activeGames,socket.id);
+  socket.on("disconnect", () => {
+    console.log(`${socket.id} disconnected.`);
+    const game = getGamebySocketId(activeGames, socket.id);
 
-    if(!game){
-      console.log("No Game")
-      return
+    if (!game) {
+      console.log("No Game");
+      return;
     }
 
-    let winnerId;
+    let winnerId, disconnectedPlayer;
     if (game.pX == socket.id) {
       winnerId = game.pO;
+      disconnectedPlayer = game.pX_name;
     } else {
       winnerId = game.pX;
+      disconnectedPlayer = game.pO_name;
     }
 
-    console.log(game.room)
+    console.log(game.room);
 
-    io.to(game.room).emit("game-over-by-timeout", winnerId);
+    io.to(game.room).emit(
+      "game-over-by-disconnect",
+      winnerId,
+      disconnectedPlayer
+    );
     delete activeGames[game.room];
 
-    console.log("----------Deleted------------")
-    console.log(activeGames)
-  })
-
+    console.log("----------Deleted------------");
+    console.log(activeGames);
+  });
 });
 
-app.get('/', (req,res) =>{
+app.get("/", (req, res) => {
   res.status(200).json({
-    active:true,
-    message:"Server is Running"
-  })
-})
+    active: true,
+    message: "Server is Running",
+  });
+});
 
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);

@@ -32,3 +32,15 @@ export function getGamebySocketId(activeGames,socketId){
 
   return null;
 }
+
+
+export function drawCheck(board){
+  let draw = true;
+  for(let square of Object.keys(board)){
+    if(board[square]==null){
+      draw = false;
+    }
+  }
+
+  return draw
+}

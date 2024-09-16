@@ -22,6 +22,7 @@ function App() {
     setPlayerTurn,
     setTimer1,
     setTimer2,
+    setMessage,
     setWinner,
     setWinningLine,
   } = useAppContext();
@@ -80,6 +81,8 @@ function App() {
           min: duration,
           sec: 0,
         });
+
+        setMessage("Invite a Player")
         console.log("Room Created");
       });
 
@@ -87,9 +90,13 @@ function App() {
         setBoard(board);
       });
 
-      socket.on("board-update", (board) => {
+      socket.on("board-update", (board, message) => {
         console.log("Board Updated");
         setBoard(board);
+
+        if(message){
+          setMessage(message)
+        }
       });
 
       socket.on("start-match", (pX, pO, playerTurn, duration) => {
@@ -104,23 +111,39 @@ function App() {
           min: duration,
           sec: 0,
         });
+        setMessage(null);
       });
 
       socket.on("turn-update", (turn) => {
         setPlayerTurn(turn);
       });
 
-      socket.on("game-over-by-timeout", (winnerId) => {
+      socket.on("game-over-by-timeout", (winnerId, timeoutPlayer) => {
+        setMessage(`${timeoutPlayer}'s Time Up.`);
         setWinner(winnerId);
         setMatchStatus("END");
       });
 
-      socket.on("game-over-by-move", (winner, winningLine, board) => {
+      socket.on("game-over-by-disconnect", (winnerId,disconnectedPlayer)=>{
+        setMessage(`${disconnectedPlayer} disconnected.`)
+        setWinner(winnerId);
+        setMatchStatus("END")
+      })
+
+      socket.on("game-over-by-move", (winner, winningLine, board, winnerName) => {
+        console.log("Disconnect")
         setWinner(winner);
         setWinningLine(winningLine);
         setBoard(board);
+        setMessage(`${winnerName} Wins`)
         setMatchStatus("END");
       });
+      
+      socket.on("game-draw",(board)=>{
+        setMatchStatus('DRAW');
+        setBoard(board);
+      })
+
 
       socket.on("toast", (error, title, message) => {
         toast({

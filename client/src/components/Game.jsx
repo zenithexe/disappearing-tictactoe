@@ -137,13 +137,16 @@ function Game() {
   } = useAppContext();
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex flex-col items-center pt-40 min-h-screen bg-gray-100">
       <div className="flex flex-col items-center">
-        <h1 className="text-4xl font-bold mb-8">Tic-Tac-Toe</h1>
+        <h1 className="text-4xl font-bold mb-2">Ultimate Tic-Tac-Toe</h1>
+        <p className="font-medium text-gray-600 mb-8 text-lg">Game of Strategy and Memory</p>
         <RoomCodeDisplay roomCode={roomId} />
         {matchStatus == "WAITING" ? (
-          <div className="my-3">
-            <Loading />
+          <div className="flex flex-col mb-4">
+            <div className="my-3">
+              <Loading />
+            </div>
           </div>
         ) : (
           <div className="flex gap-2 my-3">
@@ -152,20 +155,23 @@ function Game() {
               seTimerState={setTimer1}
               player={players.pX}
               symbol={"X"}
-              isActive={playerTurn === "pX"}
+              isActive={playerTurn === "pX" && matchStatus=='ON'}
             />
             <TimerDisplay
               timerState={timer2}
               seTimerState={setTimer2}
               player={players.pO}
               symbol={"O"}
-              isActive={playerTurn === "pO"}
+              isActive={playerTurn === "pO" && matchStatus=='ON'}
             />
           </div>
         )}
         <Board boardState={board} />
       </div>
       <Result />
+      <div className="absolute bottom-5">
+      <p className="text-center font-medium">Twist: Starting from the 8th Move, after every move the oldest move on the board will disappear.</p>
+      </div>
     </div>
   );
 }

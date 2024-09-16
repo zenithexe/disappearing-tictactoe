@@ -37,6 +37,7 @@ export const AppContextProvider = ({ children }) => {
     sec:0,
   })
 
+  const [message,setMessage] = useState(null)
   const [winner,setWinner] = useState(null)
   const [winningLine,setWinningLine] = useState([])
 
@@ -73,6 +74,9 @@ export const AppContextProvider = ({ children }) => {
         timer2,
         setTimer2,
 
+        message,
+        setMessage, 
+        
         winner,
         setWinner,
 

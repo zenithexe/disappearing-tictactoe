@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label";
 import { useAppContext } from "@/context/AppContext";
 import Loading from "./Loading";
 import LoadingDots from "./LoadingDots";
+import NavBar from "./NavBar";
 
 function StartPlayingDialog({ isDialogOpen, setIsDialogOpen }) {
   const { socket, setRoomId, setClientPlayer } = useAppContext();
@@ -173,33 +174,43 @@ function Welcome({ connectWebSocket, isGameServerActive }) {
   }
   return (
     <>
-      <div className="p-10 rounded-xl border text-center shadow">
-        <p className="font-mono font-semibold text-lg">Welcome to</p>
-        <h1 className="font-bold text-3xl">Disappearing Tic-Tac-Toe</h1>
-        <p className="mt-3 text-sm">
-          A regular tic-tac-toe game, except after the 8th Move the oldest move
-          disappears.
-          <br />
-          Whoever score three tiles in a line, wins! Good Luck :)
-        </p>
-        {isGameServerActive ? (
-          <div className="mt-10">
-            <Button onClick={onStartGame} className="mt-8">Start Playing</Button>
-            <StartPlayingDialog
-              isDialogOpen={isDialogOpen}
-              setIsDialogOpen={setIsDialogOpen}
-            />
-          </div>
-        ) : (
-          <div className="mt-10 flex flex-col gap-2">
-            <LoadingDots />
-            <div>
-              <h1 className="font-semibold">Connecting to the Game Server.</h1>
-              <p className="text-sm text-red-500">To save resources, the Game Server goes offline when not actively used. <br/>
-              Please wait, while the server gets started.</p>
+      <NavBar />
+      <div className="w-full flex flex-col justify-center items-center h-screen bg-gray-100">
+        <div className="p-10 rounded-xl border text-center shadow bg-white">
+          <p className="font-mono font-semibold text-lg">Welcome to</p>
+          <h1 className="font-bold text-3xl">Disappearing Tic-Tac-Toe</h1>
+          <p className="mt-3 text-sm">
+            A regular tic-tac-toe game, except after the 8th Move the oldest
+            move disappears.
+            <br />
+            Whoever score three tiles in a line, wins! Good Luck :)
+          </p>
+          {isGameServerActive ? (
+            <div className="mt-10">
+              <Button onClick={onStartGame} className="mt-8">
+                Start Playing
+              </Button>
+              <StartPlayingDialog
+                isDialogOpen={isDialogOpen}
+                setIsDialogOpen={setIsDialogOpen}
+              />
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="mt-10 flex flex-col gap-2">
+              <LoadingDots />
+              <div>
+                <h1 className="font-semibold">
+                  Connecting to the Game Server.
+                </h1>
+                <p className="text-sm text-red-500">
+                  To save resources, the Game Server goes offline when not
+                  actively used. <br />
+                  Please wait, while the server gets started.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </>
   );
