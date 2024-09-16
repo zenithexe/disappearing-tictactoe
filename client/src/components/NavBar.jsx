@@ -19,7 +19,7 @@ function NavBar() {
             </div>
           </div>
           <a
-            href="https://github.com/zenithexe/ultimate-tictactoe"
+            href="https://github.com/zenithexe/disappearing-tictactoe"
             target="_blank"
           >
             <GitHubLogoIcon className="w-6 h-6 cursor-pointer" />
