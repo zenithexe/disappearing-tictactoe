@@ -146,7 +146,7 @@ io.on("connection", (socket) => {
       if (activeGames[roomId].moves.length == 7) {
         const disappearSquare = game.moves.shift();
         game.board[disappearSquare] = null;
-        message = `Sqaure ${disappearSquare} - disappeared.`;
+        message = `Sqaure ${disappearSquare} - Disappeared.`;
       }
       //Pushing New Move
       game.moves.push(index);

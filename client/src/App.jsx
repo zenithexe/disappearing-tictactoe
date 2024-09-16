@@ -6,11 +6,12 @@ import { useAppContext } from "./context/AppContext";
 import { useToast } from "@/components/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { Button } from "./components/ui/button";
+import { useTheme } from "./context/ThemeContext";
 
 const gameServerURL = import.meta.env.VITE_API_URL;
 
-
 function App() {
+  const {theme} =useTheme();
   const {
     setSocket,
     setBoard,
@@ -29,9 +30,7 @@ function App() {
 
   const { toast } = useToast();
   const [isGameServerActive, setIsGameServerActive] = useState(false);
-  const [isMount, setMount] = useState(true)
- 
-
+  const [isMount, setMount] = useState(true);
 
   async function startServer() {
     try {
@@ -53,18 +52,18 @@ function App() {
     startServer();
   }, []);
 
-  useEffect(()=>{
-    if(isMount){
-      setMount(false)
-      return
+  useEffect(() => {
+    if (isMount) {
+      setMount(false);
+      return;
     }
 
     connectWebSocket();
-  },[isGameServerActive])
+  }, [isGameServerActive]);
 
   function connectWebSocket() {
     const socket = io(gameServerURL);
-    
+
     socket.on("connect", () => {
       console.log("This Client is connected.");
       console.log(socket.id);
@@ -82,7 +81,7 @@ function App() {
           sec: 0,
         });
 
-        setMessage("Invite a Player")
+        setMessage("Invite a Player");
         console.log("Room Created");
       });
 
@@ -94,8 +93,8 @@ function App() {
         console.log("Board Updated");
         setBoard(board);
 
-        if(message){
-          setMessage(message)
+        if (message) {
+          setMessage(message);
         }
       });
 
@@ -124,26 +123,28 @@ function App() {
         setMatchStatus("END");
       });
 
-      socket.on("game-over-by-disconnect", (winnerId,disconnectedPlayer)=>{
-        setMessage(`${disconnectedPlayer} disconnected.`)
+      socket.on("game-over-by-disconnect", (winnerId, disconnectedPlayer) => {
+        setMessage(`${disconnectedPlayer} disconnected.`);
         setWinner(winnerId);
-        setMatchStatus("END")
-      })
-
-      socket.on("game-over-by-move", (winner, winningLine, board, winnerName) => {
-        console.log("Disconnect")
-        setWinner(winner);
-        setWinningLine(winningLine);
-        setBoard(board);
-        setMessage(`${winnerName} Wins`)
         setMatchStatus("END");
       });
-      
-      socket.on("game-draw",(board)=>{
-        setMatchStatus('DRAW');
-        setBoard(board);
-      })
 
+      socket.on(
+        "game-over-by-move",
+        (winner, winningLine, board, winnerName) => {
+          console.log("Disconnect");
+          setWinner(winner);
+          setWinningLine(winningLine);
+          setBoard(board);
+          setMessage(`${winnerName} Wins`);
+          setMatchStatus("END");
+        }
+      );
+
+      socket.on("game-draw", (board) => {
+        setMatchStatus("DRAW");
+        setBoard(board);
+      });
 
       socket.on("toast", (error, title, message) => {
         toast({
@@ -159,18 +160,21 @@ function App() {
     };
   }
 
-
-
   return (
     <>
-      {matchStatus == "OFF" ? (
-        <div className="h-screen flex justify-center items-center">
-          <Welcome connectWebSocket={connectWebSocket} isGameServerActive={isGameServerActive} />
-        </div>
-      ) : (
-        <Game />
-      )}
-      <Toaster />
+      <div className={theme}>
+        {matchStatus == "OFF" ? (
+          <div className="h-screen flex justify-center items-center">
+            <Welcome
+              connectWebSocket={connectWebSocket}
+              isGameServerActive={isGameServerActive}
+            />
+          </div>
+        ) : (
+          <Game />
+        )}
+        <Toaster />
+      </div>
     </>
   );
 }

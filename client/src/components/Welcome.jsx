@@ -19,7 +19,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAppContext } from "@/context/AppContext";
-import Loading from "./Loading";
 import LoadingDots from "./LoadingDots";
 import NavBar from "./NavBar";
 
@@ -174,9 +173,8 @@ function Welcome({ connectWebSocket, isGameServerActive }) {
   }
   return (
     <>
-      <NavBar />
-      <div className="w-full flex flex-col justify-center items-center h-screen bg-gray-100">
-        <div className="p-10 rounded-xl border text-center shadow bg-white">
+      <div className="w-full flex flex-col justify-center items-center h-screen bg-gray-100 dark:bg-gray-900 dark:text-white">
+        <div className="p-10 rounded-xl border text-center shadow bg-white dark:bg-gray-800 dark:shadow-gray-950 dark:shadow-lg">
           <p className="font-mono font-semibold text-lg">Welcome to</p>
           <h1 className="font-bold text-3xl">Disappearing Tic-Tac-Toe</h1>
           <p className="mt-3 text-sm">
