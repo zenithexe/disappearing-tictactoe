@@ -203,7 +203,7 @@ function Welcome({ connectWebSocket, isGameServerActive }) {
                 <p className="text-sm text-red-500">
                   To save resources, the Game Server goes offline when not
                   actively used. <br />
-                  Please wait, while the server gets started.
+                  Please wait, while the server gets started. It takes 1-2 mins.
                 </p>
               </div>
             </div>
