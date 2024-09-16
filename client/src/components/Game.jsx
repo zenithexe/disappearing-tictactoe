@@ -139,7 +139,7 @@ function Game() {
   return (
     <div className="flex flex-col items-center pt-40 min-h-screen bg-gray-100">
       <div className="flex flex-col items-center">
-        <h1 className="text-4xl font-bold mb-2">Ultimate Tic-Tac-Toe</h1>
+        <h1 className="text-4xl font-bold mb-2">Disappearing Tic-Tac-Toe</h1>
         <p className="font-medium text-gray-600 mb-8 text-lg">Game of Strategy and Memory</p>
         <RoomCodeDisplay roomCode={roomId} />
         {matchStatus == "WAITING" ? (
